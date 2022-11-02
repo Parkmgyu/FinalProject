@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 다른 mapper와 중복되지 않도록 네임스페이스 기재 -->
+
+<mapper namespace="recent">
+	<insert id="insert">
+	  merge into recent
+	  using dual
+	  on (userid = #{userid} and product_id = #{product_id})
+	  when matched then
+	  update set recent_regdate = sysdate
+	  when not matched then 
+	  insert (userid,product_id)
+	  values (#{userid},#{product_id})
+	</insert>
+	
+	<select id="viewRecent" resultType="com.example.project.model.shop.dto.RecentDTO">
+	 select c.userid, c.product_id, p.product_name, p.picture_url,p.price 
+	 from recent c
+	 inner join product p
+	 on c.product_id = p.product_id  
+	 where c.userid = #{userid}
+	 order by c.recent_regdate desc
+	 <!-- offset 0 rows fetch next 5 rows only -->
+	</select>
+	
+	
+	</mapper>
+
+
+
+
+
+
+
+
+
+
+
+

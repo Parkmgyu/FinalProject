@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cart">
+	<select id="listCart"
+		resultType="com.example.project.model.shop.dto.CartDTO">
+		select cart_id, m.userid, name
+		, p.product_id, product_name, amount, price, picture_url
+		, price*amount money
+		from member m, cart c, product p
+		where
+		m.userid=c.userid and p.product_id=c.product_id
+		and m.userid=#{userid}
+	</select>
+
+	<update id="insert">
+	  merge into cart
+	  using dual
+	  on (userid = #{userid} and product_id = #{product_id})
+	  when matched then
+	  update set amount = amount + #{amount}
+	  when not matched then 
+	  insert (cart_id,userid,product_id,amount)
+	  values (cart_seq.nextval,#{userid},#{product_id},#{amount})
+	</update>
+
+	<select id="sumMoney" resultType="int">
+	 select nvl(sum(price*amount), 0) money
+  	 from product p, cart c
+  	 where p.product_id=c.product_id and userid=#{userid}
+	</select>
+
+	<delete id="delete">
+	 delete from cart
+  	 where cart_id=#{cart_id}
+	</delete>
+	
+	<delete id="deleteAll">
+	 delete from cart
+ 	 where userid=#{userid}
+	</delete>
+	
+	<update id="modifyCart">
+	 update cart
+	 set amount=#{amount}
+  	 where cart_id=#{cart_id}
+	</update>
+	
+	<select id="checkCart">
+	select * from cart 
+	where product_id = #{product_id}
+	</select>
+	
+	 <!-- 상품별 장바구니 금액 통계 -->
+ 	<select id="cart_money"
+	resultType="com.example.project.model.shop.dto.CartDTO">
+		select product_name, nvl(sum(price * amount), 0) money
+		from cart c, product p 
+		where c.product_id=p.product_id   
+		group by product_name 
+		order by product_name	
+	</select>	
+	
+	
+	
+</mapper>
+
+
+
+

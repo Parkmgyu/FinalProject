@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 다른 mapper와 중복되지 않도록 네임스페이스 기재 -->
+<mapper namespace="product">
+	<!-- 상품목록 -->
+	<select id="product_list" resultType="com.example.project.model.shop.dto.ProductDTO">
+		select * from product
+		order by product_name
+	</select>
+	
+	<!-- 카테고리 호출 -->
+	<select id="category" resultType="com.example.project.model.shop.dto.CategoryDTO">
+		select level, cate_name, cate_code, cate_code_ref
+		from prdcategory
+		start with cate_code_ref is null connect by prior cate_code = cate_code_ref
+	</select>
+	
+	<!-- 상품정보 + 카테고리 조인 -->
+	<select id="detail_product" resultType="com.example.project.model.shop.dto.ProductDTO">
+	  <!-- select * from product
+ 	 where product_id=#{product_id}  -->
+		select p.product_id, p.product_name ,p.cate_code, c.cate_code_ref, c.cate_name, 
+			price, description, picture_url, prd_regdate
+		from product p
+			inner join prdcategory c
+				on p.cate_code = c.cate_code
+				where p.product_id =#{product_id}
+	 
+	 </select> 
+	
+	<insert id="insert">
+		insert into product(product_id, product_name, price, description, picture_url, cate_code) 
+		values (seq_product.nextval,#{product_name},#{price},#{description},#{picture_url},#{cate_code})
+	</insert>
+
+	<update id="update_product">
+		update product
+		set
+		product_name=#{product_name},
+		price=#{price},
+		description=#{description},
+		picture_url=#{picture_url}
+		where product_id=#{product_id}
+	</update>
+
+	<delete id="product_delete">
+		delete from product
+		where product_id=#{product_id}
+	</delete>
+
+	<select id="fileInfo" resultType="String">
+		select picture_url
+		from product
+		where product_id=#{product_id}
+	</select>
+	
+	
+	
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

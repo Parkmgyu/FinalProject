@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 다른 mapper와 중복되지 않도록 네임스페이스 기재 -->
+<mapper namespace="order">
+	
+	<insert id="orderInfo">
+	insert into tbl_order(order_id, userid, order_rec, userAddr1, userAddr2, userAddr3, order_hp, total)
+     values(#{order_id}, #{userid}, #{order_rec}, #{userAddr1}, #{userAddr2}, #{userAddr3}, #{order_hp}, #{total})
+	</insert>
+	
+	<insert id="orderDetailInfo">
+	 insert into order_details(order_details_id, order_id, product_id, order_amount)
+     	 select order_details_id_seq.nextval, #{order_id}, product_id, amount
+         from cart   
+	</insert>
+	
+	<select id="orderList" resultType="com.example.project.model.shop.dto.OrderDetailDTO">
+	select o.total, o.order_date, d.order_id, d.order_details_id, d.delivery_status, d.order_amount, p.product_name, p.picture_url, p.product_id
+	from product p, tbl_order o, order_details d
+	where d.order_id=o.order_id and d.product_id=p.product_id and o.userid=#{userid}
+	order by d.order_details_id
+	</select>
+	
+	<update id="cancel">
+	update order_details
+	set
+	delivery_status='cancel'
+	where order_id=#{param1}
+	</update>
+</mapper>
+
+
+
